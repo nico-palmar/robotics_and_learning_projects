@@ -142,6 +142,19 @@ onnx_parser/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/onnx_parser.dir/build.make CMakeFiles/onnx_parser.dir/build
 .PHONY : onnx_parser/fast
 
+#=============================================================================
+# Target rules for targets named trt_infer
+
+# Build rule for target.
+trt_infer: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 trt_infer
+.PHONY : trt_infer
+
+# fast build rule for target.
+trt_infer/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/trt_infer.dir/build.make CMakeFiles/trt_infer.dir/build
+.PHONY : trt_infer/fast
+
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -190,6 +203,30 @@ onnx_parser.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/onnx_parser.dir/build.make CMakeFiles/onnx_parser.dir/onnx_parser.cpp.s
 .PHONY : onnx_parser.cpp.s
 
+trt_inference.o: trt_inference.cpp.o
+.PHONY : trt_inference.o
+
+# target to build an object file
+trt_inference.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/trt_infer.dir/build.make CMakeFiles/trt_infer.dir/trt_inference.cpp.o
+.PHONY : trt_inference.cpp.o
+
+trt_inference.i: trt_inference.cpp.i
+.PHONY : trt_inference.i
+
+# target to preprocess a source file
+trt_inference.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/trt_infer.dir/build.make CMakeFiles/trt_infer.dir/trt_inference.cpp.i
+.PHONY : trt_inference.cpp.i
+
+trt_inference.s: trt_inference.cpp.s
+.PHONY : trt_inference.s
+
+# target to generate assembly for a file
+trt_inference.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/trt_infer.dir/build.make CMakeFiles/trt_infer.dir/trt_inference.cpp.s
+.PHONY : trt_inference.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -200,12 +237,16 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... onnx_parser"
 	@echo "... tensorrt_check"
+	@echo "... trt_infer"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
 	@echo "... onnx_parser.o"
 	@echo "... onnx_parser.i"
 	@echo "... onnx_parser.s"
+	@echo "... trt_inference.o"
+	@echo "... trt_inference.i"
+	@echo "... trt_inference.s"
 .PHONY : help
 
 

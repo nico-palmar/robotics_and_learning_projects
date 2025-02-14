@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/usr/local/cuda-12.8/include
+CXX_INCLUDES = -I/usr/local/cuda-12.8/include -I/usr/local/include/opencv4
 
-CXX_FLAGS = -std=gnu++14
+CXX_FLAGS = -std=gnu++17
 

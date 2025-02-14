@@ -11,6 +11,10 @@ set(CMAKE_MAKEFILE_DEPENDS
   "CMakeFiles/3.25.0-rc2/CMakeCCompiler.cmake"
   "CMakeFiles/3.25.0-rc2/CMakeCXXCompiler.cmake"
   "CMakeFiles/3.25.0-rc2/CMakeSystem.cmake"
+  "/usr/local/lib/cmake/opencv4/OpenCVConfig-version.cmake"
+  "/usr/local/lib/cmake/opencv4/OpenCVConfig.cmake"
+  "/usr/local/lib/cmake/opencv4/OpenCVModules-release.cmake"
+  "/usr/local/lib/cmake/opencv4/OpenCVModules.cmake"
   "/usr/share/cmake-3.25/Modules/CMakeCInformation.cmake"
   "/usr/share/cmake-3.25/Modules/CMakeCXXInformation.cmake"
   "/usr/share/cmake-3.25/Modules/CMakeCommonLanguageInclude.cmake"
@@ -54,4 +58,5 @@ set(CMAKE_MAKEFILE_PRODUCTS
 set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/tensorrt_check.dir/DependInfo.cmake"
   "CMakeFiles/onnx_parser.dir/DependInfo.cmake"
+  "CMakeFiles/trt_infer.dir/DependInfo.cmake"
   )
