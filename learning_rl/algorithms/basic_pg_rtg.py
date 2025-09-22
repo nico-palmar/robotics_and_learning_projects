@@ -1,3 +1,7 @@
+# implement the same basic policy gradient
+# except use the reward to go method
+# copy implementation, just change the reward
+
 from ..helpers.networks import mlp
 import gym
 from gym.spaces import Discrete, Box
@@ -52,8 +56,31 @@ def reset_episode(env, episode_rewards):
     obs = env.reset()
     return obs
 
+def compute_reward_to_go(rewards):
+    # for last timestep, reward is just the last value
+    # for 2nd last, it's 2nd last added
+    # etc...
+    # until you reach first one, entire reward
+    # print(rewards)
+    rtg = [0] * len(rewards)
+    # reverse through the rewards
+    for i in range(len(rewards) - 1, -1, -1):
+        if i == (len(rewards) - 1) or i == -1:
+            rtg[i] = rewards[i]
+        else:
+            rtg[i] = rewards[i] + rtg[i+1]
+    # print(rtg)
+    return rtg
+
+def rtg_example(rewards):
+    rtg = np.zeros_like(rewards)
+    for i in reversed(range(len(rewards))):
+        rtg[i] = rewards[i] + (rtg[i+1] if i+1 < len(rewards) else 0)
+    # print(rtg)
+    return rtg
+
 # start with the code to set up the neural net, optimizer, and training environment
-def train(lr=1e-1, n_epochs = 20, batch_size=5000):
+def train(lr=1e-2, n_epochs = 20, batch_size=5000):
     env = gym.make("CartPole-v0")
     assert isinstance(env.observation_space, Box), \
         "This example only works for envs with continuous state spaces."
@@ -109,10 +136,9 @@ def train(lr=1e-1, n_epochs = 20, batch_size=5000):
                 # only render first episode in epoch
                 render = False
                 # get the return in this case
-                episode_return = sum(episode_rewards)
+                episode_return = compute_reward_to_go(episode_rewards)
                 # print(f"E ret: {episode_return}")
-                episode_len = len(episode_rewards)
-                batch_returns += [episode_return] * episode_len
+                batch_returns += episode_return
                 # print(f"Len returns: {len(batch_returns)}, length obs: {len(batch_obs)}")
                 if len(batch_obs) > batch_size:
                     # done enough, no need to run more episodes
@@ -132,4 +158,8 @@ def train(lr=1e-1, n_epochs = 20, batch_size=5000):
 
 if __name__ == "__main__":
     train()
+    # l = [10, 1, 0, 2, 15]
+    # rtg_example(l)
+    # print(l[::-1])
+    # compute_reward_to_go(l)
     print("WE STARTED DEEP RL, woohoo")
