@@ -27,6 +27,7 @@ def compute_loss(net, obs, acts, returns):
     # note log prob (a | s) => net(s).log_prob(index by a) ... indexing the a'th action's log prob
     log_prob_occured = get_policy(net, obs).log_prob(acts) # get the log prob of actions that happened in this episode
     # the policy grad is just grad (mean (log probs * returns)); take -ve for gradient ascent
+    print(acts.shape, obs.shape)
     print(log_prob_occured.shape, returns.shape)
     return - (log_prob_occured * returns).mean()
 
@@ -47,7 +48,7 @@ def perform_opt(net, obs, acts, returns, optim):
 
 def reset_episode(env, episode_rewards):
     # pass by reference; overwrite the list
-    episode_rewards = []
+    episode_rewards.clear()
     obs = env.reset()
     return obs
 
@@ -80,7 +81,11 @@ def train(lr=1e-2, n_epochs = 10, batch_size=1000):
         episode_rewards = []
         obs = reset_episode(env, episode_rewards)
 
+        render = True
+
         while True:
+            if render:
+                env.render()
             # first copy in the observations
             # adds initial observation, ignore final one (good)
             batch_obs.append(obs.copy())
@@ -101,10 +106,14 @@ def train(lr=1e-2, n_epochs = 10, batch_size=1000):
 
             # check if the current episode is done
             if done:
+                # only render first episode in epoch
+                render = False
                 # get the return in this case
                 episode_return = sum(episode_rewards)
+                # print(f"E ret: {episode_return}")
                 episode_len = len(episode_rewards)
                 batch_returns += [episode_return] * episode_len
+                # print(f"Len returns: {len(batch_returns)}, length obs: {len(batch_obs)}")
                 if len(batch_obs) > batch_size:
                     # done enough, no need to run more episodes
                     break
@@ -112,11 +121,14 @@ def train(lr=1e-2, n_epochs = 10, batch_size=1000):
                 # not done enough, need to reset things and continue on this batch
                 obs = reset_episode(env, episode_rewards)
 
+                # print(f"Reset rewards: {len(episode_rewards)}")
+
         # done one epoch
         loss = perform_opt(feedforward_net, batch_obs, batch_actions, batch_returns, optim)
         # print some epoch stats here
         print(f"Finish epoch {epoch}: Loss = {loss} | Returns = {np.mean(list(set(batch_returns)))}")
-
+    else:
+        env.close()
 
 if __name__ == "__main__":
     train()
