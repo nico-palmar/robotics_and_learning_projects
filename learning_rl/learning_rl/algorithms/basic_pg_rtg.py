@@ -2,7 +2,7 @@
 # except use the reward to go method
 # copy implementation, just change the reward
 
-from ..helpers.networks import mlp
+from learning_rl.helpers.networks import mlp
 import gym
 from gym.spaces import Discrete, Box
 from torch.optim import Adam
