@@ -16,6 +16,25 @@ compute_policy_loss = lambda net, obs, actions, advantages: - (get_probs(net, ob
 
 compute_value_loss = lambda net, obs, returns: ((returns - net(obs)) ** 2).mean()
 
+# paper said: γ ∈ [0.96, 0.99] and λ ∈ [0.92, 0.99].
+# for cart pole
+def compute_GAE(rewards, values, gamma=0.99, lam_bda=0.95):
+    advantages = [0] * len(rewards)
+
+    for t in reversed(range(len(rewards))):
+        # base case, last reward
+        if t == (len(rewards) - 1):
+            advantages[t] = rewards[t] - values[t]
+            continue
+        
+        # otherwise, compute delta for this time step
+        delta = rewards[t] + gamma * values[t+1] - values[t]
+
+        advantages[t] = delta + (gamma * lam_bda * advantages[t+1])
+    
+    return advantages
+
+
 def reset_episode(env, episode_rewards):
     # pass by reference; overwrite the list
     episode_rewards.clear()
@@ -82,13 +101,11 @@ def train(lr=1e-2, n_epochs = 20, batch_size=5000, env_name='CartPole-v1', rende
                 epoch_returns += returns
                 episode_lengths.append(len(returns))
 
-                # TODO: look into general advantage functions
-                # understand bias vs variance trade off
-                # implement a few different advantage function methods
-                returns_tensor = torch.tensor(returns, dtype=torch.float32)
-                episode_value_estimates = torch.tensor(epoch_value_estimates[len(epoch_value_estimates) - len(returns):], dtype=torch.float32)
-                advantages = returns_tensor - episode_value_estimates
-                epoch_advantage_function_vals += advantages.tolist()
+                episode_value_estimates = epoch_value_estimates[len(epoch_value_estimates) - len(returns):]
+                # TODO: investigate the effects of different param values below
+                advantages = compute_GAE(episode_rewards, episode_value_estimates)
+                # TODO: compare returns as returns = advantages + values, and see how the compare to the returns by RTG 
+                epoch_advantage_function_vals += advantages
 
                 if sum(episode_lengths) > batch_size:
                     # break out, we have all data from this batch
@@ -120,7 +137,7 @@ def train(lr=1e-2, n_epochs = 20, batch_size=5000, env_name='CartPole-v1', rende
         value_loss.backward()
         policy_optim.step()
 
-        print(f"Epoch {epoch}: Loss = {policy_loss.item():.3f} | Mean Return = {epoch_returns.mean().item():.3f} | Std Return = {epoch_returns.std().item():.3f} | Avg Ep Length = {episode_lengths.median()}")
+        print(f"Epoch {epoch}: Loss = {policy_loss.item():.3f} | Mean Return = {epoch_returns.mean().item():.3f} | Std Return = {epoch_returns.std().item():.3f} | Avg Ep Length = {episode_lengths.median()} | Advantage Mean = {epoch_advantage_function_vals.mean()} | Advantage Std = {epoch_advantage_function_vals.std()}")
 
     else:
         # close the environment on last for loop
