@@ -1,0 +1,3 @@
+/home/nico/dev_projects/open_cv_qr_reader/build/CMakeFiles/zed_opencv_testing.dir
+/home/nico/dev_projects/open_cv_qr_reader/build/CMakeFiles/edit_cache.dir
+/home/nico/dev_projects/open_cv_qr_reader/build/CMakeFiles/rebuild_cache.dir
