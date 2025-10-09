@@ -135,6 +135,8 @@ int main()
     cudaMemcpyAsync(h_output, d_output, outputSize, cudaMemcpyDeviceToHost, stream);
     cudaStreamSynchronize(stream);
 
+    
+
     delete runtime;
     delete context;
     delete engine;
