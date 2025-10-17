@@ -20,7 +20,7 @@ public:
 
     void turnOn()
     {
-        std::cout << "Clicked on button" << std::endl;
+        std::cout << "Clicked ON button" << std::endl;
         engine.runEngine();
     }
 
@@ -44,8 +44,4 @@ int main()
     Car car;
     car.turnOn();
     car.warmUp();
-
-    // TODO: investigate runtime polymorphism behaviour
-    // clean up things to be better encapsulated (probably add constructors)
-    // see when casting can help with polymorphism (or not)
 }

@@ -95,6 +95,10 @@ Copy constructors in general get invoked here: Object initialized with another o
 
 Copy the contents of one existing object into another existing object of the same class. Invoked when using `=` with 2 objects of the same class, that have already been constructed. It mainly ensure a deep cope of the resource it's managing. That means, if it has a raw pointer, it must delete it's raw pointer and reallocate the new resources via deep copy. If it's a smart pointer, say a unique pointer, it's just a matter of changing the data in the copy assignment operator (as opposed to creating a new unique pointer in the copy constructor). 
 
+- constructor: `MyClass()`
+
+Automatically called when object of the class is created. If we do not specify, the default constructor (0 arguments) is used. If we do define a constructor, the default constructor is not generated. We use the constructor to initialize attributes in the class.
+
 - destructor: `~MyClass()`
 
 Special member function, automatically invoked when an object of the class is destroyed (out of scope, or delete called on dynamically allocated memory). In charge of resource deallocation (especially dynamic memory), closing file handles, or releasing any other aquired resources.
