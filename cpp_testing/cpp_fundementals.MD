@@ -142,13 +142,44 @@ Rvalue reference are temporary expressions, which do not persist memory location
 
 - auto, decltype, constexpr, and enum class
 
+`auto`: Allows compiler to deduce variable type from it's initializer
+
+`decltype`: Queries type of an expression, returns the exact type (including const + reference qualifiers)
+
+`constexpr`: Says that a variable or function can be evaluated at compile time, for optimizations
+
+`enum class`: Strongly typed, scoped enum. Prevents implicit conversions, avoid name clashing... safer in general.
+
 - Lambda expressions and captures
+
+Lambda expression lets you define an anonymous function inside your code. It's essentially a function without a name, defined inline.
+
+Lambda's have captures, which can be used to grab variables from the outer scope. It a variable is passed in the caputure, it is passed by value by default. You can also pass it by reference in the capture. They are useful for short local functions, passed to algorithms or callbacks.
 
 - Range-based for loops and structured bindings
 
+Range-based for loops allow iterating over containers, without explicitly using an iterator or index. `for (const auto& num: nums)`.
+
+Structured bindings let you unpack multiple values returned from tuple-like objects (like std::pair, std::tuple, or a struct). `auto [var1, var2, var3] = tuple_or_struct`. By default, the values are copies, so you could use `auto&` to get references (for modification).
+
+Structured bindings work well with range based operators. Imagine `std::map<std::string, int> ages`, then `for (const auto& [name, age]: ages)` works well.
+
 - emplace_back vs push_back
 
+Both are used to add an element to the end of an STL container, but differ in how element is created/inserted.
+
+`push_back` takes a fully constructed object first (even if just a temporary is constructed), then moves or copies it into the container.
+
+`emplace_back` constructs the object directly in the container; no temporary object + no copy/move (if possible). For smart pointers, they already need to get constructed outside, forming a temporary. In this case, `push_back` and `emplace_back` are the same.
+
 - std::optional, std::variant, and std::any
+
+`std::optional<T>`: When a value may either be absent or present. Can use `.has_value()` to check existance, and `.value()` to either get the value or throw.
+
+`std::variant<T, Y>`: Type safe unions.. the variable can hold exactly one of any of these types. You can check which type is being held.
+
+`std::any`: Type erased container to store any type of data, without needing to know at compile time. C++ safe version of `void*`, with automatic type management. Do not prefer this. If you know the types, use `std::variant`. 
+
 
 ## D. Templates and Compile-Time Mechanics
 
