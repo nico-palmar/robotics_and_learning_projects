@@ -23,7 +23,7 @@ Smart pointers are used to prevent memory leaks that can be caused by dynamic me
 Ownership, in C++, refers to who is in charge of managing (allocating/freeing) a resource, typically in memory. The types of ownership closely relates to the types of smart pointers (above).
     1. `unique_ptr`: Only one owner exists; when owner goes out of scope resource is destroyed. Ownership can be transferred with move.
     2. `shared_ptr`: Multiple owners exists; when last owner goes out of scope resource is destroyed.
-    3. `unique_ptr`: Observes a shared pointer without owning; can interact with the shared pointer temporarily.
+    3. `weak_ptr`: Observes a shared pointer without owning; can interact with the shared pointer temporarily.
     4. Raw pointer: Just points to resource, no lifetime management.
 
 
@@ -110,7 +110,7 @@ Uses `&&` to create rvalue (temp value). It's used to move the source object to 
 
 - move assignment operator: `ClassName& operator=(ClassName&& other) noexcept;`
 
-Same ideas as difference between copy assignment operator vs constructor. Efficiently assign contents from one object to another, without making a copy. 
+Same ideas as difference between copy assignment operator vs constructor. Efficiently assign contents from one object to another, without making a copy. Usage is 2 constructed objects, then `a = std::move(b)`.
 
 - override, final, and virtual keywords
 
@@ -126,19 +126,29 @@ Occurs when object of derived class is assigned or copied to an obj of the base 
 
 ## C. Modern C++
 
-Move semantics (std::move, std::forward)
+- Move semantics (std::move, std::forward)
 
-Rvalue references vs lvalue references
+Move semanitcs are made for efficiency; to allow for efficient transfer of resources by moving them instead of making a deep copy. They use rvalue references (temporary values).
 
-auto, decltype, constexpr, and enum class
+`std::move`: Cast that turns an object into an r-value reference, signaling that it can be "moved from". By being an rvalue reference, it signals for certain things (move constructor/assignment operator) to be used. It is used when returning from functions, storing into containers, or moving smart pointers (ie. cannot copy unique_ptr, only move). Casts any object to rvalue, to then 'steal' it. 
 
-Lambda expressions and captures
+`std::forward`: Makes perfect forwarding possible, preserves value category (lvalue vs rvalue) when passing to another function. lvalue stays lvalue, rvalue stays rvalue. Used in template values to remember original type/value category. `std::forward<\T>(arg)`.. casts arg to the correct value recieved by template function. 
 
-Range-based for loops and structured bindings
+- Rvalue references vs lvalue references
 
-emplace_back vs push_back
+Lvalue reference are objects/functions with an identifiable memory location and persists past the current expression. Name, persistent memory loc, appear on left side of assignment operator. Variables are an example. `int x = 5`, `int& lref = x`.
 
-std::optional, std::variant, and std::any
+Rvalue reference are temporary expressions, which do not persist memory location and expire at the end of the full expression in which they appear. Unnamed, no memory location, typically right side of equal sign. Eg. Literals (like 5). `int&& rref = 5`.
+
+- auto, decltype, constexpr, and enum class
+
+- Lambda expressions and captures
+
+- Range-based for loops and structured bindings
+
+- emplace_back vs push_back
+
+- std::optional, std::variant, and std::any
 
 ## D. Templates and Compile-Time Mechanics
 
