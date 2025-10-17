@@ -24,7 +24,7 @@ class EmailNotification: public Notification
 public:
     EmailNotification(const std::string& message): Notification(message) {}
 
-    void send() override final
+    void send() const override final
     {
         std::cout << "Sending over notif by email..." << std::endl;
         std::cout << getMessage() << std::endl;
@@ -36,7 +36,7 @@ class SMSNotification: public Notification
 public:
     SMSNotification(const std::string& message): Notification(message) {}
 
-    void send() override final
+    void send() const override final
     {
         std::cout << "Sending over notif by SMS..." << std::endl;
         std::cout << getMessage() << std::endl;
@@ -49,7 +49,7 @@ public:
 
     PushNotification(const std::string& message): Notification(message) {}
 
-    void send() override final
+    void send() const override final
     {
         std::cout << "Sending over notif by Push..." << std::endl;
         std::cout << getMessage() << std::endl;
