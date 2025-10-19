@@ -183,40 +183,109 @@ Both are used to add an element to the end of an STL container, but differ in ho
 
 ## D. Templates and Compile-Time Mechanics
 
-Function and class templates
+- Function and class templates
 
-Template specialization
+Templates let you write generic code, that works with any data type without repeating the same logic for every type. A function template defined a pattern for a function, with 1+ data types as parameters: `template <typename T>`. The compiler will automatically generate a specialized template for the type of the function when called.
 
-SFINAE (conceptually)
+Class templates let you write classes , where the attributes of the class have data types that are parameters. The compiler again will generate the right combination.
 
-typename vs class in templates
+Templates enable compile-time polymorphism.. optimized code for each type used (rather than runtime polymorphism, which has some overhead).
 
-When templates are instantiated
+Normally, templated things are defined right in the header file, since the compiler needs the whole definition to generate the specific type when needed. The compiler needs access when it finds the usage of a template (this makes sense). 
 
-Basics of concepts (C++20)
+
+- Template specialization
+
+Template specialization lets you customize how templates behave for specific types.
+
+For function template specialization, you'd have the generic template, and then `template <>` followed by `void function_name<SpecificType>(SpecificType arg)`. This way, you would write some specialization for that type, if it doesn't follow the generic rules.
+
+Class template specialization is similar, except you can also have partial specialization for some subset of params. For example, if 2 arg types are the same, treat it some special case. 
+
+- SFINAE (conceptually)
+
+Means Substituation Failure Is Not an Error. Conceptually, if the compiler tries one set of types and fails... it just ignores that template type (and will not produce an error). If the first overload you try fails, try another and see if that works (unless there are no more to try). 
+
+- typename vs class in templates
+
+typename and class can be essentially used interchangeably in templates, but typename is prefer to prevent ambiguity of class. Also, if you define something that uses an element in a container, you need to say `typename T::value_type first = container[0]`, where `container` would be some generic container. 
+
+- When templates are instantiated
+
+Recall that templates are not defining the function, just a recipie for the function. They are instantiated when the compiler sees you use them with a specific type (ie. call the template function with params, that have specific types).If the template is never used, no code is generated and it will take 0 space in the compiled binary. 
+
+- Basics of concepts (C++20)
+
+Essentially rules for what template types must be able to do (constraints on the template parameters). One major benefit is that they make things easier to debug, rather than having a long confusing error message for a template implementation failing.
 
 ## E. Standard Library and Containers
 
-Iterators (random access vs bidirectional vs input/output)
+- Iterators (random access vs bidirectional vs input/output)
 
-How std::vector, std::map, and std::unordered_map work conceptually
+Iterators behave like pointers; allows traversal of elements in containers and to return their value. There's a few different types (although I mainly use random access iterators)...
 
-When to use emplace vs insert
+Input iterators: Can only read, used for read only streams.
 
-How std::sort works (introsort)
+Output iterators: Can only write, used for write only streams.
 
-Complexity tradeoffs (lookup, insertion, iteration)
+Forward iterators: Can read/write, but only move forward through the container. Can be used for unordered map/set. 
+
+Bidirection access iterator: Read/write, also move fwd + bwd. Used for map/set. 
+
+Random access iterator. Read/write, fwd + bwd AND also random jump access. Used for vector, deque, array, string.
+
+This matters because algorithms in STL specify what type of iterator they need (more on that later)...
+
+- How std::vector, std::map, and std::unordered_map work conceptually
+
+`std::vector`: A dynamically allocated array of contigous memory; resizes as needed. When `.push_back()` is called, if `size > capacity` must allocate new larger memory, copies/moves all other elements, resulting in `O(n)` operation, rather than `O(1)` normally. Favour setting a capacity beforehand if it is known. Indexing is `O(1)`, insert/remove at end is `O(1)` in the long run (amortized). Inserting/removing in middle is `O(n)` due to cost of shift. Usage: Fast, sequential operations. Order matters. Random indexing. Push/pop off the end.
+
+`std::map`: Associative container that stores key-value pair in an ordered fashion. The underlying data structure is a red-black tree... which is a self balanced, binary search tree (BST). There is some overhead in the tree storage. You would traverse the tree with sorted keys. insert, erase, find are `O(logn)` while iteration is `O(n)`.
+
+`std::unordered_map`: Hash-table with container storing key-value pairs; no explicit ordering. Works by holding a hash table, which is an array of buckets. A hash function will hash from key -> bucket. Elements in the same bucket are stored in linked list fashion. When items/bucket gets too high, it rehashes and stores elements differnetly to prevent hash collisions. Normally, insert, erase, and find are `O(1)`, but can be `O(n)` if they need to re-hash. Again, iteration is `O(n)`.
+
+- When to use emplace vs insert
+
+Emplace is used when constructing a new object for arguments and want to avoid a temporary. Rather than (Construct -> Copy/Move, you can just construct in place). Insert is used when you already have an object and want to add in into the container. Emplace saves you expensive copies/moves for more complex objects. 
+
+- How std::sort works (introsort)
+
+Not getting into the weeds... introsort essentially combines quicksort, heapsort, and insertion sort. It starts with quicksort, which is fast in practice `O(nlogn)`. If recursion is too deep (worst case `O(n^2)`), switches to heapsort, which is worst case `O(nlogn)`. Finally, for small partitions, it performs insertion sort. Bottom line: It's fast + memory efficient with worst case time complexity of `O(nlogn)` and space complexity `O(logn)`. 
+
+- Complexity tradeoffs (lookup, insertion, iteration)
+
+Note: Deque is segmented array of blocks, no need to copy entire blocks into contiguous memory (like vector). Has efficient insert/remove at front or back. Good for double ended operations.
+
+| Container           | When to Use                                                                         |
+| ------------------- | ----------------------------------------------------------------------------------- |
+| **`vector`**        | When you need fast random access and append operations                              |
+| **`deque`**         | When you need fast push/pop at both ends                                            |
+| **`list`**          | When you need frequent insertion/removal in the middle and don’t need random access |
+| **`map`**           | When you need sorted key-value pairs                                                |
+| **`unordered_map`** | When you need fast lookups and order doesn’t matter                                 |
+| **`set`**           | When you need sorted unique keys                                                    |
+| **`unordered_set`** | When you need unique keys, order doesn’t matter                                     |
+| **`array`**         | When size is fixed at compile time and contiguous memory is needed                  |
+
+| Container       | Access   | Insert    | Erase     | Iteration | Order     |
+| --------------- | -------- | --------- | --------- | --------- | --------- |
+| `vector`        | O(1)     | O(n)      | O(n)      | O(n)      | Insertion |
+| `list`          | O(n)     | O(1)      | O(1)      | O(n)      | Insertion |
+| `deque`         | O(1)     | O(1) ends | O(1) ends | O(n)      | Insertion |
+| `map`           | O(log n) | O(log n)  | O(log n)  | O(n)      | Sorted    |
+| `unordered_map` | O(1) avg | O(1) avg  | O(1) avg  | O(n)      | Unordered |
+
 
 ## F. Performance and Low-Level Details
 
-Shallow vs deep copy
+- Shallow vs deep copy
 
-What inline functions are
+- What inline functions are
 
-When the compiler generates copy/move constructors automatically
+- When the compiler generates copy/move constructors automatically
 
-new vs malloc
+- new vs malloc
 
-What happens during object construction/destruction order (base → derived → members)
+- What happens during object construction/destruction order (base → derived → members)
 
-What volatile means and when to use it
+- What volatile means and when to use it
