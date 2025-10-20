@@ -48,7 +48,7 @@ int main()
     // const auto dist_se2_squared = distanceSE2Squared<std::vector<float>>(p1, p2);
 
     std::cout << "Dist se2 sq " << dist_se2_squared << std::endl;
-
+    
     Gripper<float> g1 { 10.0 };
 
     const auto result = g1.grasp_object(9.0);
