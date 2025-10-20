@@ -101,7 +101,77 @@ RRT* can generate much more straight and optimal paths by checking for the lowes
 
 - PRM (Probabilistic Roadmap)
 
+The concept of PRM is essentially to build a graph to represent the environment, excluding paths that collide with obstacles in the C-space. Then, add the start and end nodes to the graph in some fashion, and find the shortest path in the graph using A*, djikstras, etc. Works if you really only have static obstacles. Also works if you need to plan many paths quickly.
+
+```
+PRM_build(N):
+    V = {}
+    E = {} // data structurs for constructing a graph
+
+    for i in range(N):
+        q_rand = randomCSpace()
+        if inCollision(q_rand):
+            continue
+        V.add(q_rand)
+
+    // now construct edges in nearby nodes
+    for q_curr in V: 
+        q_neighbours = findKNearNodes(V, q_curr, radius, K)
+
+        for neighbour in q_neighbours:
+            if inCollision(q_curr, neighbour):
+                continue
+            
+            E.add(q_curr, neighbour)
+    
+    return (V, E) // returns a preconstructed graph of edges and verticies
+
+PRM_run(q_start, q_goal, V, E):
+    if inCollision(q_start) or inCollision(q_goal):
+        return Failure
+    
+    V += { q_start, q_goal }
+
+    near_start = findKNearNodes(V, q_start, radius, K)
+    for q_near_start in near_start:
+        if inCollision(q_start, q_near_start):
+            return Failure
+        E.add(q_start, q_near_start)
+    
+    // do the same process for the goal node
+
+    return shortest_path(q_start, q_goal, V, E)
+```
+
 ### 3. Kinodynamic Planning
+
+Kinodynamic planning takes everything a step further. Not only do  we consider C-space/kinematics of the robot, but we also take into account the dynamic constraints. This means, the robot must be able to generate feasible trajectories. We must get some feasible control inputs and propagate them forward in time (using dynamics equations/simulation) and ensure these paths are collision free. The edges in the graphs are no longer straight lines, they are dynamically feasible movements.
+
+Let's take a look at the simplest one:
+
+```
+// NOTE: in this case we use, x, the state.
+// We are not using q for C-space
+// we check everything in state space, including collisons
+kinodynamicRRT(x_start, x_goal):
+    Tree T = initializeTree(x_start)
+
+    for i in range(N):
+        x_rand = randomStateSpace()
+        x_nearest = findNearest(T, x_rand)
+        u_rand = chooseControlU(x_nearest, x_rand) // generate dynamically feasible control input.. attempt to do this at least, to get close
+        x_next = dynamics(x_nearest, u_rand, delta_t) // simulate the dynamics
+
+        if collision_free_path_between(x_nearest ... x_next): // the entire traced out trajectory is collision free. Not only the straight line in C-space.
+            continue
+        
+        T.addEdge(q_nearest, q_next, u_rand)
+        T.addNode(q_next)
+
+        // goal check
+        if distance(q_next, q_goal) < thresh:
+            return Path(q_start, q_next)
+```
 
 ### 4. Optimization-Based/Trajectory Planning
 
