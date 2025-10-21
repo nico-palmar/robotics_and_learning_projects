@@ -122,7 +122,7 @@ Virtual => Used to enable runtime polymorphism; signals to compiler that a deriv
 
 - Slicing problem
 
-Occurs when object of derived class is assigned or copied to an obj of the base class (by value)... which results in losing derived data members + virtual function overrides. Eg. Assume Derived class is defined. Then `Derived a` `Base b = a`, and b here becomes sliced. To prevent, can use smart pointers to manage dynamically allocated objects and prevent slicing... `Derived a` `unique_ptr<Base> b = std::make_unique<Base>(a)` should work fine. 
+Occurs when object of derived class is assigned or copied to an obj of the base class (by value)... which results in losing derived data members + virtual function overrides. Eg. Assume Derived class is defined. Then `Derived a` `Base b = a`, and b here becomes sliced. To prevent, can use smart pointers to manage dynamically allocated objects and prevent slicing... `unique_ptr<Base> b = std::make_unique<Derived>()` should work fine. 
 
 ## C. Modern C++
 
