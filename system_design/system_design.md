@@ -95,6 +95,18 @@ Then, the client code will create concrete factories, which will create any need
 
 #### C. Builder
 
+Builder pattern is used to construct complex objects in a step-by-step fashion. This can be when the object requires multiple config steps... or we want to reuse the construction logic.
+
+How does it work?
+1. Product: The complex thing that is being built. Has a bunch of attributes, don't want a crazy constructor.
+2. Builder: An interface which declares steps required to create the type of product.
+3. Concrete Builders: Define implementations for the steps to actually build an object
+4. Director (optional): Controls the building process via sequence of steps of builder calls.
+
+Don't use when the code overhead is too much.. for construction of simple objects.
+
+One key point is that either the builder or concrete builder will have a product. It must be in charge of passing that object out by having the director return the object, or exposing a method itself. To avoid expensive copies of large objects, pointers can be used rather than objects (although objects work fine in the general case).
+
 #### D. Singleton
 
 #### E. Pros/Cons of Different Approaches (Can leave this for later...)
