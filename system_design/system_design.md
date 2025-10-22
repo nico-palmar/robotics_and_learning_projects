@@ -140,8 +140,41 @@ When not to use it? There are already too many levels of abstraction and wrapper
 
 #### B. Bridge
 
+The bridge pattern decouples abstraction from implementation so that the two can vary independently. Separates what you do with how you do it; uses composition and inheritance.
+
+How does it work?
+1. An absraction defines a high-level interface (a thing that defines what you do). It often contains a reference/shared pointer to an implementor.
+2. An implementor defines a lower-level interface (how are you actually going to do that thing? Defines the implementation of the abstract's interface)
+3. A refined abstraction will provide specific methods for the abstraction; it's what the client code will actually interact with.
+4. A concrete implementor implements lower level interface. Will have specific ways to achieve underlying functionality. 
+
+In the real world, we can think of this as a TV and remote. The remote, abstraction, will define a high level thing that can be done. Then, the TV, implementor, will define how that action is actually done. The client will actually use the refined abstraction. These can be altered individually. 
+
+When to use it? Have 2 dimensions of variation. Or, the implementations may change frequently (hw drivers).
+
+Avoid when: only have a single axis of variation (abstraction is fine), or if the implementor is not expected to vary. 
+
+How it differs from Adapter?
+Decouple abstraction from implementation; both are designed to work together. Generally a proactive design... in comparison, the adapter is a reactive design. Have old code and you want to make it work.
+
 
 ## 4. Structural Patterns 2
 
+#### A. Composite
+
+#### B. Decorator
+
+#### C. Facade
+
 ## 5. Behavioural Patterns
+
+#### A. Strategy
+
+#### B. Commander
+
+#### C. Observer
+
+#### D. State
+
+ONCE THIS IS DONE:  Pick 2-3 LLD problems. Start simple. Try them out.
 
