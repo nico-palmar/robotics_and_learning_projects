@@ -109,7 +109,17 @@ One key point is that either the builder or concrete builder will have a product
 
 #### D. Singleton
 
-#### E. Pros/Cons of Different Approaches (Can leave this for later...)
+A singleton is a pattern that ensures only one instance of a class is created, and provides a global access point. Essentially, it is controlled global state. 
+
+How does it work?
+1. Constructor is private/protected
+2. You access the singleton through a static method (which returns a static reference to the object).
+3. The instance is created only once; copy constructor and copy assignment operator are deleted to ensure this.
+
+When not to use them? Well... many scenarios. Global variables, objects with multiple instances, and concurrent systems are scenarios you wouldn't prefer singletons. It can break the DIP (dependency inversion principle). For a database manager, an interface which can provide different databases would be preferred (dependency injection). Also better from a testing perspective because you can have multiple types of the object (simulated and real), not just a hard coded singleton which is now tightly coupled wherever you use it.
+
+When to use? When there is only exactly 1 instance, and that unique instance is inherit to the problem (not just code convenience). For example, a hardware device interface with a single connection to a port (good singleton usage).   
+
 
 ## 3. Structural Patterns 1
 
