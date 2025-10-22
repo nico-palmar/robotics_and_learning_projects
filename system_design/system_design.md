@@ -123,6 +123,24 @@ When to use? When there is only exactly 1 instance, and that unique instance is 
 
 ## 3. Structural Patterns 1
 
+#### A. Adapter
+
+The adapter allows classes with incompatible interfaces to work, by translating one interface "(unknown)" to another "(known)" by the client. Sometimes called wrapper; wraps one class to make compatible with another (think of a wall plug adapter).
+
+How does it work?
+1. Client want to use some Target interface (person wants to use an EU charger)
+2. Adaptee has useful functionality, but uses a different interface (charger is a north american charger).
+3. Adapter then bridges the gap, implements the Target interface and translates the calls into the adaptee (creates an adapter which plugs into the EU charger, while translating the other end into something the north american charger can plug into). 
+
+Variants: Can be done via object composition (normally preferred); called the object adapter. Can also be done via inheritance, the class adapter. It inherits from the target and adaptee, so it's less flexible. 
+
+When to use it? Legacy/third party code that doesn't match required interface. Reuse functionality without modifying code.
+
+When not to use it? There are already too many levels of abstraction and wrapper would just provide more. Or, if you can just directly modify the adaptee (this would be equivalent to moving to europe and just changing over to a european charger, no adapter).
+
+#### B. Bridge
+
+
 ## 4. Structural Patterns 2
 
 ## 5. Behavioural Patterns
