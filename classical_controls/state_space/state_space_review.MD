@@ -115,3 +115,8 @@ The problem is essentailly the same as LQR, except we constrain mag(u_i(t)) <= a
 There are no analytical solutions to this problem; only efficient optimization algorithms to solve the problem numerically (to determine u(t) for time instant t). Rather than solving the integral to infinity, we often also choose some finite bound; we optimize over some time horizon.
 
 This constrained technique is known as MPC.
+
+Here's the normal form of MPC over a finite prediction horizon:
+J = sum(0, N-1)[(xk' * Q * xk + uk' * R * uk) + xN' * P * xN]
+
+In this formulation, we have finite horizon N, with a term P that can be known as the "cost to go". We will then only apply the first control input, u_0 and then recompute for the next step. You can also have constraints on both x and u in the optimization.
