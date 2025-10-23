@@ -95,7 +95,17 @@ for i in range(sim_steps):
     x_history.append(x_next)
     u_history.append(u_apply)
     x_prev = x_next
-    # print(x_prev)
+
+# Q: How does MPC work?
+# Start with some state, use Q, R and knobs to tweak the cost that is used in the optimization
+# have some starting state
+# In this case its...
+# start with some input, run MPC to optmize over some finite horizon
+# then we should take the first control input and use that for our plant
+# we can then read back the state of our plant (or use some state esimator). Incorporate that into MPC
+# in tracking MPC, we would compute the error and use that as first part in the cost (rather than just x; e = x - x_ref)
+# run another step of MPC with the updated state for some more time steps
+# MPC will again give us optimal control inputs over a time horizon. Iterate and continue
 
 
 # plot
