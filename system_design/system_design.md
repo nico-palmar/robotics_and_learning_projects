@@ -203,6 +203,17 @@ When to avoid? Already have clean/simple API, would just duplicate exisiting int
 
 #### A. Strategy
 
+Encapsulates a family of algorithms (aka. strategies), allowing runtime switching without changing the code that uses them.
+
+How does it work?
+1. Define a common strategy interface.
+2. Have multiple concrete implementations of the strategy.
+3. Allow the context class to hold ownership to an interface and call it's method, while enabling to swap out different types of methods. Note that the context doesn't inherit the strategy interface (if it did, it would be more of a composite/decorator hybrid).
+
+When to use it? When you have multiple algorithms for the same type and want to switch dynamically; avoid large if/switch statements. The behaviour changes frequently at run time. 
+
+When not to uses it? Algorithm never changes, or you need lots of data sharing between algorithms (since the algorithms are isolated).
+
 #### B. Commander
 
 #### C. Observer
