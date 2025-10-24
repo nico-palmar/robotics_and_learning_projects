@@ -214,7 +214,25 @@ When to use it? When you have multiple algorithms for the same type and want to 
 
 When not to uses it? Algorithm never changes, or you need lots of data sharing between algorithms (since the algorithms are isolated).
 
-#### B. Commander
+#### B. Command
+
+The command pattern encapsulates the request/action as an object. Instead of calling the request directly, you wrap it in a command object which knows how to execute the request/action.
+
+Allows for queueing, logging, or undoing actions easily. Also decouples the invoker (eg. button on UI) from the reciever (object performing something).
+
+How does it work?
+1. Command interface, which declares some execute method
+2. Concrete commands, which implements execute by calling methods on the reciever. The concrete commands then have a receiver. 
+3. Reciever, which is the object actually doing the work.
+4. Invoker, which triggers the command without knowing what it does internally (like the UI, or some remote contorl). Contains an array of commands for the history. 
+5. Client, which configures some (concrete) commands and assigns them to invokers. 
+
+
+When to use? Need to undo/repo actions, or history tracking. Queue, schedule, or log actions, decouple senders from receivers. 
+
+When not to use? Operations are simple, no need for abstractions. No need to undo/redo history.
+
+Note that there is an undo/redo extension to this pattern. Essentially, you add an additional undo method for the command (so undo for takeoff is to land). Then, the invoker takes 2 extra stacks; one for executed and one for undone. If we want do undo, then pop off the execute stack, execute undo, then push the command to the undo stack. If we want to redo last, then pop off the undo stack, execute normal, and put on the execute stack. The implementation I saw used pointers for the stacks. I would just make them all shared pointers in the stacks to avoid any issues.
 
 #### C. Observer
 
