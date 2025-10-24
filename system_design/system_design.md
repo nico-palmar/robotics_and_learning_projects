@@ -162,9 +162,42 @@ Decouple abstraction from implementation; both are designed to work together. Ge
 
 #### A. Composite
 
+Composite pattern lets you deal with individual objects and composites uniformly. Essentially this is when you have a tree structure, and leaves/groups share a common interface for interaction.
+
+How does it work?
+1. Define a common interface to be used by all components
+2. Define 'leaf' nodes which implement the interface
+3. Define composite nodes which contain multiple components; and can implement their methods as an aggregation
+4. The client code can now treat individual and groups uniformally.
+
+When to use it? You have a heirarchical structure (trees of parts and subparts). Client should treat individual and composite parts as the same. 
+
+When not to use it? No tree-like structure; need different interfaces for leaves/composites. Have strict ownership rules.
+
 #### B. Decorator
 
+Decorator allows adding new behaviour/responsabilities without modifying the existing code. It's like wrapping functionality on top of an existing component; adding layers. It implements the same interface as the thing it's wrapping.
+
+How does it work?
+1. Have a common interface for a component
+2. Implement a version of the component (the thing to be wrapped)
+3. Implement a decorator (the wrapper) that uses composition with a thing of the common interface. The decorator can extend the functionality of the thing it wraps.
+
+When to use? Add more modify behaviour dynamically at runtime. Avoid subclass explosion, OCP, mix+match features freely.
+
+When not to use? Simple subclassing is fine, the number of decorators becomes too high (hard to debug), need tight coupling. 
+
 #### C. Facade
+
+Facade pattern should provide a simple, unified interface to a complex subsystem. It's like a front desk for your system, that delegates the work.
+
+How does it work?
+1. You have multiple subsystems, each with their own interfaces and functionalities.
+2. You want the client to interfact with the entire system together. The facade provides a single API to coordinate amongst multiple subsystems.
+
+When to use it? Have a complex subsystem with multiple interdependent classes. Simplify client interface and reduce coupling.
+
+When to avoid? Already have clean/simple API, would just duplicate exisiting interface, need fine control (facade would hide too many details).
 
 ## 5. Behavioural Patterns
 

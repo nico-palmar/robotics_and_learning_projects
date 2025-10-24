@@ -42,14 +42,14 @@ public:
     void activate() const override
     {
         std::cout << "Activating the " << name_ << " subsystem" << std::endl;
-        for (const auto joint&: effector_joints_)
+        for (const auto& joint: effector_joints_)
         {
             joint->activate();
         }
     }
 
 private:
-    // TODO: consider swapping these to unique pointers
+    // TODO: consider swapping these to unique pointers (if the joints do belong to the subsystem)
     std::vector<std::shared_ptr<RobotComponent>> effector_joints_;
     std::string name_;
 };
