@@ -250,5 +250,19 @@ When not to use? Need guaranteed deliveries or sync ordering... use event queue 
 
 #### D. State
 
+Allows for altering behaviour when internal state changes. Instead of using big switch/if statements to check for states, you encapsulate each state's behaviour in it's own class. The context holds a reference to the state, and delegates behaviour to it.
+
+How does it work?
+1. Define a state interface, which declares behaviours a state can have (what can you do from a state; causes a state transition)
+2. Declare concrete states, which implements the behaviours in said states (what happens after taking an action? Uses a reference to the context, which can change it's state. Implements any state transitions).
+3. Declare a context, which has a state object and delegates requests to it - it can change the current state (with a generic setState method). User interacts with the context.
+
+Essentially it boils down to... context has a state, which it tightly manages. It can call any behaviour on the state. The state then polymporphically runs some concrete state behaviour. It can take a reference to the context, which can additionally set the state to some new concrete state (polymorphically) to run that state's methods the next time. 
+
+When to use? Object's behaviour changes on state and that changes at runtime. Large switch blocks for states. Want to make states independant and reusable. 
+
+When to avoid? Too few states (enum + switch is easier), states shared too much internal data
+
+
 ONCE THIS IS DONE:  Pick 2-3 LLD problems. Start simple. Try them out.
 
