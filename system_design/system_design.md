@@ -236,6 +236,18 @@ Note that there is an undo/redo extension to this pattern. Essentially, you add 
 
 #### C. Observer
 
+The observer pattern defines a 1-to-many relationship between objects. When one object (the subject) changes it's state, all dependent objects (Observers) are notified. Foundation of pub-sub mechanisms; subject -> observers.
+
+How does it work?
+1. Define an observer interface; how does an observer recieve updates (from the subject)?
+2. Define a subject interface; maintains a list of observers and notifies them of any changes
+3. Concrete subject will then store state and notify it's observers of any changes
+4. Concrete observers will react to the subject updates (display, log, alarm, etc.)
+
+When to use? Have multiple components that depend on a shared data source (like sensor readings, mission status, etc). Decouple data producers from consumers. Need an event system where listeners register dynamically. 
+
+When not to use? Need guaranteed deliveries or sync ordering... use event queue instead. Or, number of observers is large and updates are frequent -> performance bottlenecks. 
+
 #### D. State
 
 ONCE THIS IS DONE:  Pick 2-3 LLD problems. Start simple. Try them out.
