@@ -1,18 +1,14 @@
-from learning_rl.helpers.networks import mlp
-import gym
-from gym.spaces import Discrete, Box
+from learning_rl.helpers.networks import CategoricalNet, DiagonalGaussianNet, mlp
+import gymnasium as gym
+from gymnasium.spaces import Discrete, Box
 from torch.optim import Adam
-from torch.distributions.categorical import Categorical
 import torch
 import numpy as np
-
-get_probs = lambda net, obs : Categorical(logits=net(obs))
-
-get_action = lambda net, obs: get_probs(net, obs).sample().item()
+import types
 
 # watch the np.mean for categorical vs continous action spaces; depending on what log_probs returns
 # NOTE: watch sign on loss
-compute_policy_loss = lambda net, obs, actions, advantages: - (get_probs(net, obs).log_prob(actions) * advantages).mean()
+compute_policy_loss = lambda net, obs, actions, advantages: - (net.get_probs(obs).log_prob(actions) * advantages).mean()
 
 compute_value_loss = lambda net, obs, returns: ((returns - net(obs)) ** 2).mean()
 
@@ -38,7 +34,7 @@ def compute_GAE(rewards, values, gamma=0.99, lam_bda=0.95):
 def reset_episode(env, episode_rewards):
     # pass by reference; overwrite the list
     episode_rewards.clear()
-    obs = env.reset()
+    obs, _ = env.reset()
     return obs
 
 def reward_to_go(episode_rewards):
@@ -50,16 +46,43 @@ def reward_to_go(episode_rewards):
             rtg[i] = episode_rewards[i] + rtg[i+1]
     return rtg
 
-def train(lr=1e-2, n_epochs = 20, batch_size=5000, env_name='CartPole-v1', render=True):
+def train(lr=1e-3, n_epochs = 20, batch_size=10000, env_name='CartPole-v1', render=True):
     # 1. Setup things global to entire training session
-    # implement version of vanilla PG that works with discrete action spaces
-    # TODO (npalmar): make version that works for both discrete and continuous action spaces
-    env = gym.make(env_name)
+    render_mode = "human" if render else None
+    env = gym.make(env_name, render_mode=render_mode)
+    base_env = env.unwrapped
 
-    # TODO (npalmar): tune these networks
-    policy_net = mlp(sizes=[env.observation_space.shape[0], 32, env.action_space.n])
+    # if render:
+    #     original_render = base_env.render
+
+    #     def _safe_render(self, *args, **kwargs):
+    #         if hasattr(self, "last_u"):
+    #             self.last_u = float(np.asarray(self.last_u).squeeze())
+    #         return original_render(*args, **kwargs)
+
+    #     base_env.render = types.MethodType(_safe_render, base_env)
+
+    obs_dim = env.observation_space.shape[0]
+    if isinstance(env.action_space, Discrete):
+        policy_net = CategoricalNet(obs_dim=obs_dim,
+                                    act_dim=env.action_space.n,
+                                    hidden_sizes=[64, 64])
+        action_dtype = torch.int64
+    elif isinstance(env.action_space, Box):
+        act_dim = env.action_space.shape[0]
+        policy_net = DiagonalGaussianNet(
+            obs_dim=obs_dim,
+            act_dim=act_dim,
+            act_low=env.action_space.low,
+            act_high=env.action_space.high,
+            hidden_sizes=[64, 64],
+        )
+        action_dtype = torch.float32
+    else:
+        raise NotImplementedError(f"Unsupported action space: {env.action_space}")
+
     # estimates the return (value function) given some starting observation
-    value_func_net = mlp(sizes=[env.observation_space.shape[0], 32, 1])
+    value_func_net = mlp(sizes=[obs_dim, 32, 32, 1])
 
     policy_optim = Adam(policy_net.parameters(), lr=lr)
     value_func_optim = Adam(value_func_net.parameters(), lr=lr)
@@ -74,27 +97,28 @@ def train(lr=1e-2, n_epochs = 20, batch_size=5000, env_name='CartPole-v1', rende
         epoch_value_estimates = []
         episode_lengths = []
 
-        curr_render = True if render else False
+        render_this_episode = render
+        if render:
+            base_env.render_mode = "human"
 
-        # start off with some intial state
+        # start off with some initial state
         obs = reset_episode(env, episode_rewards)
 
         # run for the entire epoch, not just one episode
         while True:
-            if curr_render:
-                env.render()
-
             # sample for some trajectory
             epoch_observations.append(obs)
 
             torch_obs = torch.tensor(obs, dtype=torch.float32)
-            action = get_action(policy_net, torch_obs)
-            obs, reward, done, _ = env.step(action)
+            action = policy_net.sample_action(torch_obs)
+            obs, reward, terminated, truncated, _ = env.step(action)
+            done = terminated or truncated
             value_estimates = value_func_net(torch_obs)
             # action and reward associated with observation at current time step
             episode_rewards.append(reward)
             epoch_actions.append(action)
-            epoch_value_estimates.append(value_estimates)
+            epoch_value_estimates.append(value_estimates.item())
+            # print(value_estimates.shape)
 
             if done:
                 returns = reward_to_go(episode_rewards)
@@ -113,12 +137,21 @@ def train(lr=1e-2, n_epochs = 20, batch_size=5000, env_name='CartPole-v1', rende
 
                 # same epoch, just reset the episode
                 obs = reset_episode(env, episode_rewards)
-                curr_render = False
+                if render_this_episode:
+                    render_this_episode = False
+                    base_env.render_mode = None
 
         # have all trajectories, RTG, and advantage function values for all timesteps
         epoch_observations = torch.tensor(epoch_observations, dtype=torch.float32)
-        epoch_actions = torch.tensor(epoch_actions, dtype=torch.int32)
+        epoch_actions = torch.tensor(epoch_actions, dtype=action_dtype)
         epoch_advantage_function_vals = torch.tensor(epoch_advantage_function_vals, dtype=torch.float32)
+        adv_std = epoch_advantage_function_vals.std()
+        # substracting a constant baseline here (no issue)
+        # even after using GAE, scale can vary across episodes in batches
+        # we centre and scale to keep policy gradient well conditioned
+        epoch_advantage_function_vals = (
+            epoch_advantage_function_vals - epoch_advantage_function_vals.mean()
+        ) / (adv_std + 1e-8)
         epoch_returns = torch.tensor(epoch_returns, dtype=torch.float32)
         epoch_value_estimates = torch.tensor(epoch_value_estimates, dtype=torch.float32)
         episode_lengths = torch.tensor(episode_lengths, dtype=torch.int32)
@@ -135,7 +168,7 @@ def train(lr=1e-2, n_epochs = 20, batch_size=5000, env_name='CartPole-v1', rende
         value_func_optim.zero_grad()
         # print(policy_loss.shape, policy_loss)
         value_loss.backward()
-        policy_optim.step()
+        value_func_optim.step()
 
         print(f"Epoch {epoch}: Loss = {policy_loss.item():.3f} | Mean Return = {epoch_returns.mean().item():.3f} | Std Return = {epoch_returns.std().item():.3f} | Avg Ep Length = {episode_lengths.median()} | Advantage Mean = {epoch_advantage_function_vals.mean()} | Advantage Std = {epoch_advantage_function_vals.std()}")
 
@@ -144,5 +177,5 @@ def train(lr=1e-2, n_epochs = 20, batch_size=5000, env_name='CartPole-v1', rende
         env.close()
 
 if __name__ == "__main__":
-    train()
+    train(env_name="Pendulum-v1", render=False)
     print("TRAINED VANILLA PG")
