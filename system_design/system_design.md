@@ -261,8 +261,5 @@ Essentially it boils down to... context has a state, which it tightly manages. I
 
 When to use? Object's behaviour changes on state and that changes at runtime. Large switch blocks for states. Want to make states independant and reusable. 
 
-When to avoid? Too few states (enum + switch is easier), states shared too much internal data
-
-
-ONCE THIS IS DONE:  Pick 2-3 LLD problems. Start simple. Try them out.
+When to avoid? Too few states (enum + switch is easier), states shared too much internal data.
 
