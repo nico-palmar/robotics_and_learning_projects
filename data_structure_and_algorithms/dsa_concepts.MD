@@ -55,3 +55,46 @@ Modify the data structure without using any extra space. Could be for reversing 
 Should consider practicing a few problems in this rhealm later. Consider the operations: concatenating (+ or append()), substring (using substr(pos, len)), search (find()).
 
 Also some common algos like reversing words/sentences, palindromes, or anagram/frequency (did that in the longestSubstring example).
+
+
+### 2. Hash Tables and Hash Sets
+
+Hash tables store key-value pairs using a hash function, mapping key to index (or bucket). Goal is O(1) lookup, deletions, and insertion. 
+
+In C++, we have `std::unordered_map<Key, value>` or `std::unordered_set<Key>`.
+
+Note that the hash function can have collisions, which C++ `unordered_map` handles with chaining (a linked list of values at each hashed index where there is a collision).
+
+#### A. Frequency Maps
+Used in problems involving counting... character frequencies/element frequencies.
+
+```
+std::unordered_map<char, int> char_count;
+for (const auto& c: s)
+{
+    char_count[c]++;
+}
+```
+
+#### B. Grouping w Hash Maps
+Hash maps make it easy to group data
+
+```
+// group all anagrams in sorted fashion
+std::unordered_map<std::string, std::vector<std::string>> anagram_group;
+for (const auto& word: words)
+{
+    auto key = word;
+    std::sort(key.begin(), key.end());
+    anagram_group[key].push_back(word);
+}
+```
+
+
+#### C. Existance checking
+For checking existance of an element, an unordered set may be preferred; O(1) search
+
+
+#### D. Sliding window
+
+Use a hashmap to keep counts of object inside a sliding window.
