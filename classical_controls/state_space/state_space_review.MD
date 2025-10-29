@@ -15,7 +15,7 @@ Can use the SS model, deriving the equations of a system, then put them together
 
 Informal def'n of **observability**: Modes that show up in output, y(t) are said to be observable. All modes show up => SS is observable; else it's unobservable. Only way to become unobservable is through p-z cancellation.Formally, it means we can figure out the state using the output, and control inputs (by solving the DE).
 
-Informal def'n of **controllability**: Modes that are effected by the input are said to be controllable. All modes controllable => SS controllable. If no p-z cancellations, then shou;d be controllable. Formally, it means that we can start at any state and reach any final state over time (full control over our state). (A, B) controllable PBH test exists to check for controllability.
+Informal def'n of **controllability**: Modes that are affected by the input are said to be controllable. All modes controllable => SS controllable. If no p-z cancellations, then should be controllable. Formally, it means that we can start at any state and reach any final state over time (full control over our state). (A, B) controllable PBH test exists to check for controllability.
 
 Limitations exists for uncontrollable/unobservable, similar to p-z cancellation (like how we can never stabilize a system with unstable p-z cancellation).
 
@@ -88,7 +88,7 @@ J = integral(0, inf)[x(t)' * Q * x(t) + u(t)' * R * u(t)]. Q, R >= 0 are symmetr
 
 Assume: (A, B) stabilizable, (A, Q) is detectable.
 
-Result: Controller that minimizes J is stabilizing linear state-feedback controller, u = -K * x... K  is computed by algebraic Riccati equation (though that's more of a detail). These use the A and B matricies (different from observer error dynamics, described below).
+Result: Controller that minimizes J is stabilizing linear state-feedback controller, u = -K * x... K  is computed by algebraic Riccati equation (though that's more of a detail). These use the A and B matricies (different from observer error dynamics, described below). So... LQR can be used in place of some pole selecting method to find a controller which can then go into the system as u = -Kx. 
 
 The whole idea here is that J penalizes both state and control input (and to what degree). Rather than tweaking poles, we can tweak Q, R as knobs; more meaningfully than choosing poles. 
 
