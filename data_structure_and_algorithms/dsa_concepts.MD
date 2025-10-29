@@ -98,3 +98,145 @@ For checking existance of an element, an unordered set may be preferred; O(1) se
 #### D. Sliding window
 
 Use a hashmap to keep counts of object inside a sliding window.
+
+
+### 3. Stacks and Queues
+
+
+#### A. Stack (LIFO)
+
+Stacks are last in, first out data structures => last element pushed is first popped.
+
+In C++...
+```
+std::stack<T>
+push(x) to add element
+pop() to remove top element
+top () access top
+empty(), size()
+```
+When to use? Function call stack (recursion), undo/redo systems, balanced parenthesis, reverse elements
+
+
+#### B. Monotomic Stacks
+
+A stack that retains elements in monotonic order. Each time you push a new element, pop from stack to maintain order.
+
+Can use for next greatest element, stock span/temp problems, or histogram largest rectangle
+
+For next greatest element... [3, 2, 5, 1, 4, 3] => [5, 5, -1, 4, -1, -1].
+
+Note that the stack always holds element in monotomically decreasing order.
+
+```
+// idea: keep popping off a stack while nums[stack.top()] < curr
+for (int i = 0; i < nums.size(); i++)
+{
+    while (!stack.empty() && nums[i] > nums[stack.top()])
+    {
+        // the current value is next greatest, pop off
+        res[stack.top()] = nums[i];
+        stack.pop();
+    }
+    // signal that we haven't found the next greatest for idx i
+    stack.push(i);
+}
+```
+
+#### C. Queue (FIFO)
+
+First in first out
+
+In C++
+```
+std::queue<T>
+push(x) enqueue (add to back to queue)
+pop() to dequeue (remove from front)
+front() peek the front
+empty(), size()
+```
+
+Use cases: BFS, producer consumer, low level traversal in trees
+
+#### D. BFS with Queues
+Idea: Process the nodes in order, using a queue
+```
+void bfs(int start, vector<vector<int>>& graph)
+{
+    vector dist(graph.size(), math.inf);
+    queue<int> q;
+    // put the start node in the queue
+    q.push(start);
+    dist[start] = 0;
+    while (!q.empty())
+    {
+        int next_node = q.front();
+        q.pop();
+        for (const auto& neighbour: graph[next_node])
+        {
+            if (dist[neighbour] == math.inf)
+            {
+                dist[neighbour] = dist[next_node] + 1;
+                q.push(neighbour);
+            }
+        }
+    }
+}
+```
+
+#### E. Dequeue (double ended queue)
+
+Dequeue supports insertion and deletion on both ends
+```
+C++ implementation:
+std::dequeue<T>
+push_back(x), push_front(x)
+pop_back(), pop_front()
+front(), back()
+```
+
+Use cases: Sliding window maximum (maximum in decreasing order), implementing stack/queue, palindrome checking (compare ends)
+
+#### F. Sliding window maximum (dequeue)
+
+For sliding window of size k, output max element.
+Idea: Maintain monotonic decreasing dequeue of indicies.
+That is, max element index is at the front, min element index is at the back
+
+Then for each element O(N)...
+1. Pop from the front if element is outside window (can't select old value)
+2. Pop from the back if the new element is larger (those can't be the greatest)
+3. Push new element at back (larger, acceptable elements are at the front)
+4. Largest acceptable is the element at the front
+
+```
+vector<int> maxSlidingWindow(vector<int>& nums, int k)
+{
+    dequeue<int> dq;
+    vector<int> res;
+    for (int i = 0; i < nums.size(); i++)
+    {
+        // input is [0, 1, 2, 3]
+        // if idx = 3, window is [1, 2, 3] with k = 3. So dist is idx > (i - k + 1)
+        // pop front front while out of range
+        while (!dq.empty() && dq.front() < (i - k + 1))
+        {
+            dq.pop_front();
+        }
+
+        while (!dq.empty() && nums[dq.back()] < nums[i])
+        {
+            dq.pop_back();
+        }
+
+        dq.push_back(nums[i]);
+
+        // don't add for any of the first few vals
+        if (i >= (k - 1))
+        {
+            res.push_back(nums[dq.front()]);
+        }
+    }
+    return res;
+}
+```
