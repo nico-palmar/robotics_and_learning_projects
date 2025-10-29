@@ -240,3 +240,139 @@ vector<int> maxSlidingWindow(vector<int>& nums, int k)
     return res;
 }
 ```
+
+### 4. Linked Lists
+
+#### A. Data Structure
+
+Linear data structure, where elements (nodes) are connected by pointers. Not contiguous in memory; dynamic size with easy insertion/deletion. Cons: No random access, higher memory overhead.
+
+Node definition:
+```
+struct Node
+{
+    int val { 0 };
+    Node* next { nullptr };
+    Node(int v): val(v);
+}
+```
+
+#### B. Reversal
+
+Reverse a linked list both recursively or iteratively:
+
+First, iterative
+```
+Node* reverseList(Node* head)
+{
+    Node* curr = head;
+    Node* prev = nullptr;
+    while (curr != nullptr)
+    {
+        Node* next = curr->next;
+        curr->next = prev;
+        curr = next;
+        prev = curr;
+    }
+    // end up with curr as new head
+    return prev;
+}
+```
+
+Then recursive
+```
+Node* reverseListRec(Node* head)
+{
+    // base case: it's the last node
+    if (!head || !head->next)
+    {
+        return head;
+    }
+    auto solution_head = reverseListRec(head->next);
+    // link the solution to this node
+    head->next->next = head;
+    head->next = nullptr;
+    return solution_head;
+}
+```
+
+#### C. Merge Two Sorted Lists
+
+Similar to the merge step in merge sort, sort from largest to smallest
+```
+Node* mergeTwoSortedLists(Node* l1, Node* l2)
+{
+    if (!l1) return l2;
+    if (!l2) return l1;
+
+    if (l1->val > l2->val)
+    {
+        auto next_head = mergeTwoSortedLists(l1->next, l2);
+        l1->next = next_head;
+        return l1;
+    }
+    else
+    {
+        auto next_head = mergeTwoSortedLists(l1, l2->next);
+        l2->next = next_head;
+        return l2;
+    }
+}
+```
+
+
+#### D. Fast/Slow Pointers
+
+Used for finding middle and cycle detection.
+
+Can use slow/fast ptrs. Slow up by 1, fast up by 2.
+
+Finding middle: when fast reaches the end, then slow is in the middle.
+
+```
+Node* middleNode(Node* head)
+{
+    auto fast, slow = head;
+    while (fast && fast->next)
+    {
+        fast = fast->next->next;
+        slow = slow->next;
+    }
+    return slow;
+}
+```
+
+Cycle detection and floyd's algorithm:
+
+```
+bool hasCycle(Node* head)
+{
+    auto slow, fast = head;
+    while (fast && fast->next)
+    {
+        fast = fast->next->next;
+        slow = slow->next;
+
+        if (fast == slow)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+```
+
+
+#### E. Recursion + Iteration
+
+Recursion: Cleaner
+Iteration: More verbose
+
+Recursion: O(n) space complexity, stack
+Iteration: O(1) space complexity
+
+Recursion: Can be slower due to function calls
+Iteration: Might be faster
+
+Recursion: Good when conceptually recursive
+Iteration: For large linked lists, avoids stack overflow.
