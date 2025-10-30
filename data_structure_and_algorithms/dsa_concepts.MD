@@ -376,3 +376,198 @@ Iteration: Might be faster
 
 Recursion: Good when conceptually recursive
 Iteration: For large linked lists, avoids stack overflow.
+
+
+
+### 5. Trees
+
+#### A. Basics
+
+Trees are a connected, acyclic structure. Root is top-most node. Each node has 0 or more children. Binary trees have only 2 children. Binary Search Tree (BST) have property `left.val < root.val < right.val`.
+
+Common Node Definition:
+```
+struct TreeNode
+{
+    int val;
+    TreeNode* left { nullptr };
+    TreeNode* right { nullptr };
+    TreeNode(int v): val(v) {}
+};
+```
+
+
+#### B. BFS and DFS
+
+DFS goes deep first. Uses a stack or recursion. Commonly used for Traversals, height, and LCA (lowest common ancestor, I think). 
+
+BFS goes level by level. Uses a queue. Commonly used for level order traversal, or shortest path in an unweighted tree (similar to BFS in graphs).
+
+Note that for binary trees, there are 3 common traversals for DFS (in order, pre order, post order). Of course, there is also level order (BFS style).
+
+Level order traversal: Use queue
+
+```
+void bfs(TreeNode* root)
+{
+    if (!root) return;
+    std::queue<TreeNode*> q;
+    q.push(root);
+    while (!q.empty())
+    {
+        auto curr = q.front();
+        q.pop();
+        // visit the current node, add it's neighbours to the queue
+        if (curr->left) q.push(curr->left);
+        if (curr->right) q.push(curr->right);
+    }
+}
+```
+
+DFS Inorder traversal: Left -> Root -> Right
+```
+void inorder(TreeNode* root)
+{
+    if (!root) return;
+    inorder(root->left);
+    // visit the root
+    inorder(root->right);
+}
+```
+
+DFS Preorder traversal: Root -> left -> right
+```
+void preorder(TreeNode* root)
+{
+    if (!root) return;
+    // visit the root
+    inorder(root->left);
+    inorder(root->right);
+}
+```
+
+DFS Postorder: Left -> right -> root
+
+
+#### C. Tree Diameter and Height
+
+Height: Length of longest path from root -> leaf node
+
+```
+int height(TreeNode* root)
+{
+    if (!root) return 0;
+    return 1 + std::max(height(root->left), height(root->right));
+}
+```
+
+Diameter: Longest path between 2 nodes (which can pass through the root, but doesn't have to).
+```
+int dfs(TreeNode* root, int& max_d)
+{
+    if (!root) return 0;
+    // concept: use DFS to compute the heights
+    // then, keep track of the max_d for parent recursion
+    // the function actaully returns the max height (not diameter)
+    const auto left_height = dfs(root->left, max_d);
+    const auto right_height = dfs(root->right, max_d);
+    // global maximum diameter; can get passed by it's children
+    max_d = std::max(max_d, left_height + right_height);
+    return 1 + (std::max(left_height, right_height));
+}
+
+int depth(TreeNode* root)
+{
+    int max_d = 0;
+    dfs(root, max_d);
+    return max_d;
+}
+```
+
+
+#### D. Lowest Common Ancestor (LCA)
+
+LCA: Given two nodes in a tree; p and q, LCA is the lowest node in the tree that has both p and q as descendants. Note that a node can be a descendant of itself.
+
+Case 1: Generic Binary Tree... use DFS recursion
+
+```
+TreeNode* LCA(TreeNode* root, TreeNode* p, TreeNode* q)
+{
+    // base case: either root is empty
+    // or root is p (LCA(p, p, q) -> p)
+    // or root is q (LCA(q, p, q) -> q)
+    // acknowledge either finding one of them, or finding nothing
+    if (!root || root == p || root == q)
+    {
+        return root;
+    }
+
+    // finds if any LCA exists on left
+    auto left = LCA(root->left, p, q);
+    // finds if any LCA exists on right
+    auto right = LCA(root->right, p, q);
+
+    // note that now we are in post order
+    // if we got back left and right, this must be the lowest ancestor
+    if (left && right)
+    {
+        return root;
+    }
+    // otherwise, return the non-empty node
+    return left? left: right;
+}
+```
+
+Case 2: Binary Search Tree
+Idea: In a BST, we can use values for comparison.
+If both p and q smaller, then LCA is on the left.
+If both p and q larger, then on right.
+Otherwise, this is LCA.
+```
+TreeNode* LCA_BST(TreeNode* root, TreeNode* p, TreeNode* q)
+{
+    if (!root) return root;
+
+    if (root->val > p->val && root->val > q->al)
+    {
+        return LCA_BST(root->left, p, q);
+    }
+    else if (root->val < p->val && root->val < q->val)
+    {
+        return LCA_BST(root->right, p, q);
+    }
+    // if not, this is the LCA, one larger and other smaller
+    return root;
+}
+
+```
+
+#### E. Balanced Trees
+
+Balanced binary tree: For every node, diff between left and right <= 1.
+Makes the tree height = about O(logn).
+
+Types of balanced trees: AVL Tree, red black tree, b-trees.
+
+The concept is to check for balance and height of the tree at the same time (because if you do it separately, you end up with O(n^2) time complexity; together it's O(n)).
+
+```
+bool isBalanced(TreeNode* root, int& height)
+{
+    if (!root)
+    {
+        height = 0;
+        return true;
+    }
+    int left_height = 0;
+    int right_height = 0;
+    bool left_balanced = isBalanced(root, left_height);
+    bool right_balanced = isBalanced(root, right_height);
+
+    height = 1 + std::max(left_height, right_height);
+    return (left_balanced && right_balanced && std::abs(left_height - right_height) <= 1);
+}
+```
+
+
