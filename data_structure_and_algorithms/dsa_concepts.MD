@@ -571,3 +571,84 @@ bool isBalanced(TreeNode* root, int& height)
 ```
 
 
+### 6. Binary Search + Divide and Conquer
+
+#### A. Binary Search
+
+Binary search is O(logn) algorithm that works with sorted data. Iteratively (or recursively) half the search space, based on some condition.
+
+```
+int binarySearch(vector<int>& nums, int target)
+{
+    int l = 0;
+    int r = nums.size() - 1;
+
+    while (l < r)
+    {
+        int mid = l + (r-l)/2;
+        auto mid_elem = nums[mid];
+        if (mid_elem == target)
+        {
+            return mid;
+        }
+        // assume sorted from smallest to largest
+        else if (mid_element < target)
+        {
+            l = mid+1;
+        }
+        else
+        {
+            r = mid-1;
+        }
+    }
+    return -1;
+}
+```
+
+
+#### B. Lower Bound (First true)
+
+Find smallest index where condition(mid) becomes true
+
+```
+int lowerBound(vector<int>& nums, int target)
+{
+    int l = 0; r = nums.size();
+    while (l < r)
+    {
+        int mid = l + (r - l) / 2;
+        if (nums[mid] >= target) r = mid;   // move left
+        else l = mid + 1;                   // move right
+    }
+    return l; // smallest i with nums[i] >= target
+}
+```
+ 
+#### C. Divide and Conquer... review ECE 406 notes
+
+Some common algorithms...
+
+Merge sort: Split array in half, merge sorted halves
+Quick sort: Parition by pivot, combine recursively
+Binary tree recursion: Recurse left/right subtrees, combine child results.
+
+Let's go over merge sort and quick sort in a bit more detail...
+
+
+#### D. Sorting
+
+Can be broken down into 2 steps... 
+Outer function finds the middle index of a vector, and calls merge(mergesort(half1), mergesort(half2));
+
+The inner function, merge takes 2 merged arrays, and combines them recursively (puts smaller elem first, until any array is all processed).
+
+
+For quick sort, you have 2 general functions...
+1. Partition: This function randomly selects a pivot element (or chooses the last value). You then go through the entire range of the vector of interest (keeping a store position). If the element is less than the pivot, then swap the current position and store position.. advancing the current position. You then place the pivot (at the end) in the correct spot and return the pivot.
+2. An outer quicksort function which partitions the array into 2 (with a pivot) then calls quicksort from both halves of the pivot.
+
+
+#### E. Middle Finding
+
+Quick select: Find the value that would be at k-position if the array were sorted.
+Same idea as quick sort.. us the partition function in 1. The high level wrapper is then different, where if k is pivot you found it. Otherwise, look in either left/right depending on if k < pivot or k > pivot.
