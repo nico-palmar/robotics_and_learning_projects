@@ -652,3 +652,125 @@ For quick sort, you have 2 general functions...
 
 Quick select: Find the value that would be at k-position if the array were sorted.
 Same idea as quick sort.. us the partition function in 1. The high level wrapper is then different, where if k is pivot you found it. Otherwise, look in either left/right depending on if k < pivot or k > pivot.
+
+### 7. Graphs
+
+Note that I already made notes on this topic, and covered it by pencil + paper. I'll cover a few topics here that I don't remember as well.
+
+#### A. Cycle Detection
+
+For a directed graph, cycles can be detected by considering dfs and clock times, and checking if a back edge exists:
+
+```
+dfs_with_clock(G, u, pre, post, clock)
+// Then check if a cycle exists
+for (u,v) in graph edges:
+    interal_u = (pre[u], post[u])
+    interval_v = ..
+    if interval_u is subset of interval_v:
+        return true
+return false
+```
+
+Note that Kahns algorithm may also be relevant here (see section below).
+
+For an undirected graph... you can use union-find method (see section below)
+
+```
+for (u,v) in edges:
+    if !union(u,v):
+        return true
+return false
+```
+
+
+
+#### B. Topological Sort (DAG Only)
+
+If using DFS with clock.... run dfs. When vertex finishes, put at the front of a vector.
+Idea: All elements in a DAG lead to other elements with lower post numbers (highest -> lowest post ordering). 
+
+Kahn's Algorithm.. idea: Node must come after all nodes that point to it. So:
+
+```
+1. Compute the in-degree of all verticies (how many incoming edges it has)
+2. Put all 0 in degrees in a queue (these will come first in the order)
+3. While queue is not empty:
+    - pop u from the queue
+    - add u to the topological ordering (at the back)
+    - for all neighours (u, v):
+        decrease the in-degree of neighbour v
+        if it's in degree is now 0:
+            push v to the queue 
+4. If topo sort has fewer nodes than total # of verticies, then graph contains a cycle
+```
+
+
+
+#### C. Shortest Paths: Ideas behind djikstras, bellman-ford, and floyd-warshall
+
+Djikstra's concept: Keep a priority queue, and a distance vector initiated to infinity. Then, while the priority queue is not empty, pop off the queue. For all it's neighbours, if the distance to the neighbour is greater than the distance to the popped node and it's length to that neighbour, then set the distance for that neighbour (it's final value) and push it onto the priority queue. O((E + V) log(V)).
+
+Note that in Djikstra's, without the update queue (if you just push to the queue), you need to check for a duplicate in the queue when popping. Can check if the popped distance > distance to vertex, and skip if it is (this is a duplicate). 
+
+Bellman ford: For all verticies, for all edges, call update (min to current node and prev node using it's edge). O (V*E)
+
+Floyd-warshall... skip
+
+
+#### D. MST Algorith: Ideas
+
+Union-find:
+
+```
+find(x):
+    if prev[x] != x:
+        prev[x] = find(prev[x])
+    return x
+
+union(u, v):
+    g1 = find(u)
+    g2 = find(v)
+    if (g1 == g2):
+        return false
+    if (rank(g1) > rank(g2)):
+        prev[g2] = g1
+    else:
+        prev[g1] = g2
+        if (rank(g1) == rank(g2)):
+            rank(g2)++
+```
+
+Then kruskals O(ElogE) for the sort:
+```
+MST = []
+Sort edges
+for (u,v) in sorted edge order:
+    if union(u,v):
+        continue
+    MST.add([u,v])
+return MST
+```
+
+There's also prim's algorithm for MST
+```
+procedure prim(G, l):
+    set cost to infinity, set prev pointers to none
+    choose vertex v randomly
+    cost(v) = 0
+    p_queue = makeQueue(V, cost)
+    while(not p_queue.empty()):
+        u = p_queue.pop_min()
+        for all neighbours (u, v):
+            if cost(v) > l(u, v) and v in prio_queue:
+                cost(v) = l(u,v)
+                prev(v) = u
+                update(p_queue, v, cost(v))
+```
+
+Note that if the queue in prim's doesn't support update.. then similarly to djikstras, you would keep an array of inMST, always check if already inMST to check for duplicates, and only perform an update if the neighbour is not in mst.
+
+#### E. Bipartite Graphs
+
+(SKIP for now)
+
