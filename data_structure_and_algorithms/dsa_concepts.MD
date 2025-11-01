@@ -774,3 +774,39 @@ Note that if the queue in prim's doesn't support update.. then similarly to djik
 
 (SKIP for now)
 
+
+### 8. Priority Queue
+
+#### A. What is a heap?
+
+A heap is a specialized binary tree, which satisfies heap property. In a min-heap, every node's value <= its children's value... smallest element is at the root. Max heap is opposite. It is also a complete binary tree: all levels are filled (left -> right), except for the last.
+
+Heap operations are O(log(n)) in general. Push puts element at the bottom of the heap, the bubbles it up. Pop removes the root, moves the last element to root, and heapifies down (both O(logn)). Access min/max is O(1). Heapify (build heap) is O(n).
+
+#### B. Some applications
+
+Kth largest element: Add element to a min heap. As the size > K, then remove the smallest. The top of the heap becomes the Kth largest element at the end.
+
+### 9. Dynamic Programming
+
+I made notes on this recently and I'm hoping I should be semi-good. I'll put a few relevant notes here, but then I'll call it.
+
+#### A. Core idea
+
+1. Has overlapping subproblems. That is, a problem can be broken up into overlapping subproblems, which have to be solved repeatedly. For example computing fibonnaci. DP helps to reuse results.
+2. Optimal substructure: The global optimum can be constructed by optimal solutions to subproblems... for example in graphs, the shortest path through a node passes through optimal subpaths.
+
+#### B. Memoization vs Tabulation
+
+Memoization: Top-down recursion, with cacheing (start from biggest problem, recurse down to BC).
+
+Tabulation: Bottom-up approach; iterative. Start with a base case, build up problems in a DP array. 
+
+
+#### C. Define state + transitions
+
+1. State - params that uniquely define a problem
+2. Transition - how large subproblems are made up of smaller ones
+3. Base case - what are the smallest subproblems (and their concrete results)
+
+There's a whole bunch of DP examples. I wrote out a few but will skip in times sake.
