@@ -1,4 +1,4 @@
-#include <optional>
+#include <expected>
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -6,10 +6,17 @@
 #include <iostream>
 #include <memory>
 
-class SerialInterface {
+enum class SerialErrorCodes
+{
+    NoData,
+    CorruptedData,
+};
+
+class SerialInterface
+{
 public:
     virtual void openPort(const std::string& port_name) = 0;
-    virtual std::optional<std::string> readCommand() = 0;  // return a string if data available
+    virtual std::expected<std::string, SerialErrorCodes> readCommand() = 0;  // return a string if data available
     virtual void closePort() = 0;
 };
 
@@ -46,14 +53,14 @@ public:
         open_ = false;
     }
 
-    std::optional<std::string> readCommand() override
+    std::expected<std::string, SerialErrorCodes> readCommand() override
     {
         // simulate some data
-        const std::string data = "yes";
+        const std::string data = "";
 
         if (data.length() == 0)
         {
-            return std::nullopt;
+            return std::unexpected(SerialErrorCodes::NoData);
         }
         if (data.find('#') != std::string::npos)
         {
@@ -78,7 +85,16 @@ int main()
     if (cmd.has_value())
         std::cout << "Received: " << *cmd << "\n";
     else
-        std::cout << "No command available\n";
+    {
+        switch(cmd.error())
+        {
+            case SerialErrorCodes::NoData:
+                std::cout << "No command available\n";
+                break;
+            default:
+                break;
+        }
+    }
     serial->closePort();
 
     // serial->openPort("/dev/ttyBAD"); // should throw runtime_error
@@ -86,6 +102,11 @@ int main()
     // general idea... low level libs should only catch to clean up it's state, then rethrow
     // mid level modules should catch more specific errors and translate that. Then retry/reset/enter degraded
     // finally, the top level application should catch (mostly everything), shutdown gracefully
+
+    // some ideas: lower level or embedded libs which need to be readily used and performant... error codes may be preferred
+    // especially if there's something that's more so recoverable/expected
+    // for higher level apps, can prefer throwing
+    // note that one big thing with an excpetion is that it propagates all the way up, whereas with an error code you need to propagate it up
 
     return 0;
 }
