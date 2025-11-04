@@ -159,7 +159,44 @@ procedure calculate(string s):
 
 ### 4. H-index
 
+// what are the important concepts to calculate H-index?
+// the maximum value of h-index = total number of papers published
+// should keep track of papers cited a least x times
+// [4, 3, 5, 6, 7, 1]
+// paper cited at least 0 times: 6 -> H0
+// papers cited at least 1x: 6 -> h1
+// paper cited at least 2x: 5 -> h2
+// papers cited at least 3x: 5 -> h3
+// papers cited at least 4x: 4 -> h4
+// it's sort of an accumulation, because papers cited at least 4 times = papers cited at least 3 times - papers cited 3x
 
+// look at [3, 0, 6, 1, 5] -> keep vector where idx corresponds to citation amount
+// NO: That is AT MOST.
+// [1, 2 (1 + 1 from before), 2 (0 + 2 before), 3 (1 + 2), 3, 4 (1 + 4)]
+// better yet... we care about at least. Which means, we accumulate in reverse
+// also only need to count up to the number of papers, because everything after isn't possible
+// [1, 1, 0, 1, 0, 2] => [5, 4, 3, 3, 2, 2]. When the idx <= count, from the back, then that's the h-index
+
+```
+procedure hIndex(v[1...n]):
+    if n == 0:
+        return 0
+    
+    for item in v:
+        if (item < v.size()):
+            count[item]++
+        else:
+            count[n]++
+
+    accum_val = 0
+    for citation_amt, count in count.reverse():
+        accum_val += count
+
+        if (accum_val >= citation_amt):
+            // this is the h index
+            return citation_amt
+    return 0
+```
 
 
 ### 5. 4Sum
@@ -197,10 +234,117 @@ procedure 4sum(v[1..n], target):
 ```
 
 ### 6. Rotting Oranges
+// this is a BFS problem
+// need to keep track of when we complete one 'level of bfs' = 1 minute
+// once the queue is empty, we need to check for any fresh oranges in the graph
 
+// how do we keep track of one level complete? The queue for BFS will need to contain both the (vertex, time) pair, so that when popping/pushing new nodes we can increment the time (and record the last time)
+
+```
+procedure orangesRotting(G):
+    // initalize rotting oranges
+    Q = []
+    min_time = 0
+    for v element of G:
+        if (v == 2):
+            // push the rotten vertex, with it's time
+            Q.push((v, t=0))
+    
+    while (!Q.empty()):
+        v, t = Q.pop() // gives us next vertex to rot others
+        min_time = max(min_time, t) // update our minimum time with the now rotten orange
+        for u fresh neighbour of v:
+            t_next = t + 1
+            u.val = 2 // mark as rotten
+            Q.push((u, t_next)) // push the neighbour rotting at the next time step
+    
+    if fresh orange exists in G: return -1
+
+    return min_time
+```
 
 ### 7. Fibonnaci Numbers
 
 ### 8. Design Circular Queue
+
+// how to design a circular queue?
+
+```
+// main thing for a circular queue is that we keep a pointer to the front, and to the end
+// both front and end can wrap around using modulo operation
+
+// the only really 'tricky' thing here is that we resize the queue to hold 1 extra spot
+// this is so that we can distinguish between full and empty
+// we do +1 checks on back, to account for the extra space
+
+class MyCircularQueue {
+public:
+    MyCircularQueue(int k) {
+        q_.resize(k+1);
+    }
+    
+    bool enQueue(int value) {
+        // must check if we have space to enqueue to the back
+        if (isFull())
+        {
+            // the back will catch up to the front, no space
+            return false;
+        }
+        // wrap around back to the front
+        q_[back_] = value;
+        back_ = (back_ + 1) % q_.capacity();
+        return true;
+    }
+    
+    bool deQueue() {
+        if (isEmpty())
+        {
+            return false;
+        }
+        front_ = (front_ + 1) % q_.capacity();
+        return true;
+    }
+    
+    int Front() {
+        if (isEmpty())
+        {
+            return -1;
+        }
+        return q_[front_];
+    }
+    
+    int Rear() {
+        if (isEmpty())
+        {
+            return -1;
+        }
+        auto idx = (back_ == 0)? q_.capacity() - 1 : back_ - 1;
+        return q_[idx];
+    }
+    
+    bool isEmpty() {
+        return front_ == back_;
+    }
+    
+    bool isFull() {
+        return ((back_+1)%q_.capacity() == front_);
+    }
+private:
+    std::vector<int> q_;
+    int front_ { 0 };
+    int back_ { 0 };
+};
+
+/**
+ * Your MyCircularQueue object will be instantiated and called as such:
+ * MyCircularQueue* obj = new MyCircularQueue(k);
+ * bool param_1 = obj->enQueue(value);
+ * bool param_2 = obj->deQueue();
+ * int param_3 = obj->Front();
+ * int param_4 = obj->Rear();
+ * bool param_5 = obj->isEmpty();
+ * bool param_6 = obj->isFull();
+ */
+```
 
 ### 9. String Compression
