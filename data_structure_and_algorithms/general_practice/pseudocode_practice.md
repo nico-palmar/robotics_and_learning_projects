@@ -348,3 +348,40 @@ private:
 ```
 
 ### 9. String Compression
+
+// idea: iterate all the way through the back, keeping a count of the current char
+// count until you see a differnt character
+// if you see something else or the string ends
+// add the letter with the count to the string
+
+// at the end, you need to take the string, and one by one write into the chars input vector
+
+```
+procedure compress(chars[1...n]):
+    if n == 0:
+        return 0
+    
+    if n == 1:
+        return 1
+    
+    s = ""
+    
+    curr = chars[1]
+    count = 1
+    // don't process last
+    for i in 2...n:
+        char = chars[i]
+        if char != curr:
+            s += curr + (count > 1 ? string(count): "")
+            curr = char
+            count = 1
+            continue
+        count++
+    
+    s += curr + (count > 1 ? string(count): "")
+    
+    for i, c in s:
+        chars[i] = c
+    
+    return s.length()
+```
