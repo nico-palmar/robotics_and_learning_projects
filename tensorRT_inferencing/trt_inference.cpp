@@ -125,7 +125,7 @@ int main()
     context->setTensorAddress(INPUT_NAME, d_input);
     context->setTensorAddress(OUTPUT_NAME, d_output);
 
-    // allocate host (CPU) memory
+    // allocate host (CPU) memory (no need bc the image has the data pointer in the host already)
     // float* h_input = new float[inputSize / sizeof(float)];  // Allocate host memory
     cudaMemcpyAsync(d_input, preprocessed_img.data(), inputSize, cudaMemcpyHostToDevice, stream);
 
@@ -134,8 +134,6 @@ int main()
     float* h_output = new float[outputSize / sizeof(float)];
     cudaMemcpyAsync(h_output, d_output, outputSize, cudaMemcpyDeviceToHost, stream);
     cudaStreamSynchronize(stream);
-
-    
 
     delete runtime;
     delete context;

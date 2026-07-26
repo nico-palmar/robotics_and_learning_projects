@@ -15,41 +15,107 @@
 # target_include_directories(trt_sample PUBLIC ${OpenCV_INCLUDE_DIRS} ${CUDA_INCLUDE_DIRS} ${TensorRT_INCLUDE_DIRS})
 # target_link_libraries(trt_sample PUBLIC ${OpenCV_LIBS} ${CUDA_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${TensorRT_LIBRARIES})
 
-cmake_minimum_required(VERSION 3.10)
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}" ${CMAKE_MODULE_PATH})
-project(TensorRTCheck)
+# cmake_minimum_required(VERSION 3.10)
+# set(CMAKE_CXX_STANDARD 17)
+# set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+# set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}" ${CMAKE_MODULE_PATH})
+# project(TensorRTCheck)
 
-# Specify TensorRT paths
+# # Specify TensorRT paths
+# set(TENSORRT_INCLUDE_DIR /usr/include/x86_64-linux-gnu)
+# set(TENSORRT_LIBRARY_DIR /usr/lib/x86_64-linux-gnu)
+
+# # Add include directories
+# include_directories(${TENSORRT_INCLUDE_DIR})
+
+# # Find TensorRT libraries
+# find_library(TENSORRT_LIBRARY nvinfer
+#     PATHS ${TENSORRT_LIBRARY_DIR}
+#     REQUIRED)
+
+# find_library(TENSORRT_PARSER_LIBRARY nvonnxparser
+#     PATHS ${TENSORRT_LIBRARY_DIR}
+#     REQUIRED)
+
+# find_package(CUDA REQUIRED)
+# include_directories(${CUDA_INCLUDE_DIRS})
+# link_directories(${CUDA_LIBRARY_DIRS})
+
+# find_package(OpenCV REQUIRED)
+# include_directories(${OpenCV_INCLUDE_DIRS})
+
+# add_executable(tensorrt_check main.cpp)
+# target_link_libraries(tensorrt_check ${TENSORRT_LIBRARY} ${TENSORRT_PARSER_LIBRARY} ${CUDA_LIBRARIES})
+
+# add_executable(onnx_parser onnx_parser.cpp)
+# target_link_libraries(onnx_parser ${TENSORRT_LIBRARY} ${TENSORRT_PARSER_LIBRARY} ${CUDA_LIBRARIES})
+
+# add_executable(trt_infer trt_inference.cpp)
+# target_link_libraries(trt_infer ${TENSORRT_LIBRARY} ${TENSORRT_PARSER_LIBRARY} ${CUDA_LIBRARIES} ${OpenCV_LIBS})
+
+
+cmake_minimum_required(VERSION 3.18)
+project(TensorRTCheck LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# -----------------------------
+# TensorRT setup
+# -----------------------------
 set(TENSORRT_INCLUDE_DIR /usr/include/x86_64-linux-gnu)
 set(TENSORRT_LIBRARY_DIR /usr/lib/x86_64-linux-gnu)
 
-# Add include directories
 include_directories(${TENSORRT_INCLUDE_DIR})
+link_directories(${TENSORRT_LIBRARY_DIR})
 
-# Find TensorRT libraries
-find_library(TENSORRT_LIBRARY nvinfer
-    PATHS ${TENSORRT_LIBRARY_DIR}
-    REQUIRED)
+find_library(TENSORRT_LIBRARY nvinfer HINTS ${TENSORRT_LIBRARY_DIR} REQUIRED)
+find_library(TENSORRT_PARSER_LIBRARY nvonnxparser HINTS ${TENSORRT_LIBRARY_DIR} REQUIRED)
 
-find_library(TENSORRT_PARSER_LIBRARY nvonnxparser
-    PATHS ${TENSORRT_LIBRARY_DIR}
-    REQUIRED)
+# -----------------------------
+# CUDA setup
+# -----------------------------
+# Prefer modern CMake's CUDA detection (instead of deprecated FindCUDA)
+find_package(CUDAToolkit REQUIRED)
 
-find_package(CUDA REQUIRED)
-include_directories(${CUDA_INCLUDE_DIRS})
-link_directories(${CUDA_LIBRARY_DIRS})
+include_directories(${CUDAToolkit_INCLUDE_DIRS})
+# Note: CUDAToolkit_LIBRARIES is cleaner and doesn’t contain broken rt reference
+set(CUDA_LIBRARIES ${CUDAToolkit_LIBRARIES})
 
+# -----------------------------
+# OpenCV setup (optional)
+# -----------------------------
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
+# -----------------------------
+# Executables
+# -----------------------------
 add_executable(tensorrt_check main.cpp)
-target_link_libraries(tensorrt_check ${TENSORRT_LIBRARY} ${TENSORRT_PARSER_LIBRARY} ${CUDA_LIBRARIES})
+target_link_libraries(tensorrt_check
+    PRIVATE
+        ${TENSORRT_LIBRARY}
+        pthread
+        dl
+)
 
 add_executable(onnx_parser onnx_parser.cpp)
-target_link_libraries(onnx_parser ${TENSORRT_LIBRARY} ${TENSORRT_PARSER_LIBRARY} ${CUDA_LIBRARIES})
+target_link_libraries(onnx_parser
+    PRIVATE
+        ${TENSORRT_LIBRARY}
+        ${TENSORRT_PARSER_LIBRARY}
+        CUDA::cudart
+        pthread
+        dl
+)
 
 add_executable(trt_infer trt_inference.cpp)
-target_link_libraries(trt_infer ${TENSORRT_LIBRARY} ${TENSORRT_PARSER_LIBRARY} ${CUDA_LIBRARIES} ${OpenCV_LIBS})
-
+target_link_libraries(trt_infer
+    PRIVATE
+        ${TENSORRT_LIBRARY}
+        ${TENSORRT_PARSER_LIBRARY}
+        CUDA::cudart
+        ${OpenCV_LIBS}
+        pthread
+        dl
+)

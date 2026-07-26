@@ -271,7 +271,7 @@ Note: Deque is segmented array of blocks, no need to copy entire blocks into con
 | --------------- | -------- | --------- | --------- | --------- | --------- |
 | `vector`        | O(1)     | O(n)      | O(n)      | O(n)      | Insertion |
 | `list`          | O(n)     | O(1)      | O(1)      | O(n)      | Insertion |
-| `deque`         | O(1)     | O(1) ends | O(1) ends | O(n)      | Insertion |
+| `deque`         | O(n)     | O(1) ends | O(1) ends | O(n)      | Insertion |
 | `map`           | O(log n) | O(log n)  | O(log n)  | O(n)      | Sorted    |
 | `unordered_map` | O(1) avg | O(1) avg  | O(1) avg  | O(n)      | Unordered |
 
@@ -286,6 +286,6 @@ Note: Deque is segmented array of blocks, no need to copy entire blocks into con
 
 - new vs malloc
 
-- What happens during object construction/destruction order (base → derived → members)
+- What happens during object construction/destruction order (base → members -> dervied for construction)
 
 - What volatile means and when to use it

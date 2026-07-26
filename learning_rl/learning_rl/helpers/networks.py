@@ -10,36 +10,37 @@ from torch.distributions import (
 )
 from torch.distributions.transforms import AffineTransform
 
-try:
-    from torch.distributions.transforms import TanhTransform
-except ImportError:
-    import math
-    import torch.nn.functional as F
-    from torch.distributions import constraints
-    from torch.distributions.transforms import Transform
-    # implemented by chat to account for my old openAI spinup env...
-    class TanhTransform(Transform):
-        domain = constraints.real
-        codomain = constraints.interval(-1.0, 1.0)
-        bijective = True
-        sign = +1
+from torch.distributions.transforms import TanhTransform
+# try:
+#     from torch.distributions.transforms import TanhTransform
+# except ImportError:
+#     import math
+#     import torch.nn.functional as F
+#     from torch.distributions import constraints
+#     from torch.distributions.transforms import Transform
+#     # implemented by chat to account for my old openAI spinup env...
+#     class TanhTransform(Transform):
+#         domain = constraints.real
+#         codomain = constraints.interval(-1.0, 1.0)
+#         bijective = True
+#         sign = +1
 
-        def __init__(self, cache_size=1):
-            super().__init__(cache_size=cache_size)
+#         def __init__(self, cache_size=1):
+#             super().__init__(cache_size=cache_size)
 
-        def __eq__(self, other):
-            return isinstance(other, TanhTransform)
+#         def __eq__(self, other):
+#             return isinstance(other, TanhTransform)
 
-        def _call(self, x):
-            return x.tanh()
+#         def _call(self, x):
+#             return x.tanh()
 
-        def _inverse(self, y):
-            eps = torch.finfo(y.dtype).eps
-            y = y.clamp(min=-1.0 + eps, max=1.0 - eps)
-            return 0.5 * (torch.log1p(y) - torch.log1p(-y))
+#         def _inverse(self, y):
+#             eps = torch.finfo(y.dtype).eps
+#             y = y.clamp(min=-1.0 + eps, max=1.0 - eps)
+#             return 0.5 * (torch.log1p(y) - torch.log1p(-y))
 
-        def log_abs_det_jacobian(self, x, y):
-            return 2.0 * (math.log(2.0) - x - F.softplus(-2.0 * x))
+#         def log_abs_det_jacobian(self, x, y):
+#             return 2.0 * (math.log(2.0) - x - F.softplus(-2.0 * x))
 
 
 def mlp(sizes, activation=nn.ReLU, output_activation=nn.Identity):
