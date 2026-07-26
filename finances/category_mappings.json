@@ -1,0 +1,37 @@
+{
+  "categories": {
+    "us_broad_market": {
+      "label": "U.S. broad market",
+      "target": "0.35"
+    },
+    "emerging_markets": {
+      "label": "Emerging markets",
+      "target": "0.175"
+    },
+    "international_markets": {
+      "label": "International markets",
+      "target": "0.175"
+    },
+    "real_estate": {
+      "label": "Real estate (REITs)",
+      "target": "0.10"
+    },
+    "bonds": {
+      "label": "Bonds and bond substitutes",
+      "target": "0.15"
+    },
+    "cash": {
+      "label": "Cash and money market",
+      "target": "0.05"
+    }
+  },
+  "symbols": {
+    "CASH & CASH INVESTMENTS": "cash",
+    "CMF": "bonds",
+    "SCHE": "emerging_markets",
+    "SCHH": "real_estate",
+    "SWISX": "international_markets",
+    "SWTSX": "us_broad_market",
+    "SWVXX": "cash"
+  }
+}
